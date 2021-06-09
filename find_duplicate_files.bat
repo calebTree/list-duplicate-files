@@ -30,9 +30,21 @@ echo.
 FOR /L %%p IN (0 1 %A%) DO (
 	FOR /L %%q IN (1 1 %A%) DO (
 		IF %%obj[%%p].hash%%==%%obj[%%q].hash%% (
-			ECHO match = !obj[%%p].hash!
+			SET _match=!obj[%%p].hash!
+			ECHO Duplicate file SHA1: !_match!
+			GOTO :Output
+		) ELSE ( 
+			ECHO No Matches^^!
 			GOTO :EOF
 		)
 	)
 )
 
+:Output
+ECHO Paths:
+FOR /L %%r IN (0 1 %A%) DO (
+	IF !obj[%%r].hash!==!_match! (
+		ECHO !obj[%%r].path!
+	)
+)
+ECHO.
