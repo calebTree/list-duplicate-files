@@ -22,8 +22,17 @@ if defined obj[%A%].hash (
 SET /a A-=1
 
 :: output all paths and hashes
-FOR /L %%i IN (0 1 %A%) DO  (
+FOR /L %%i IN (0 1 %A%) DO (
    call echo path = %%obj[%%i].path%%
    call echo hash = %%obj[%%i].hash%%
+)
+echo.
+FOR /L %%p IN (0 1 %A%) DO (
+	FOR /L %%q IN (1 1 %A%) DO (
+		IF %%obj[%%p].hash%%==%%obj[%%q].hash%% (
+			ECHO match = !obj[%%p].hash!
+			GOTO :EOF
+		)
+	)
 )
 
