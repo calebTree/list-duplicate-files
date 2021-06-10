@@ -3,12 +3,13 @@ SETLOCAL EnableDelayedExpansion
 
 :: loop directory and set hash and path object
 SET /A x=0
-FOR /F tokens^=* %%i IN ('where /R %cd% *.*') DO (
+FOR /F "tokens=*" %%i IN ('where /R %cd% *.*') DO (
 	SET obj[!x!].path=%%i
-	FOR /F tokens^=* %%G IN ('certutil -hashfile "%%i" SHA1 ^| findstr /V ":"') DO SET _hash=%%G	
-	
+	FOR /F tokens^=^* %%G IN ('certutil -hashfile "%%i" SHA1 ^| findstr /V ":"') DO (
+		::CALL :Trim %%G
+		SET _hash=%%G
+	)
 	SET obj[!x!].hash=!_hash!
-	
 	SET /a x+=1
 )
 
@@ -21,30 +22,35 @@ if defined obj[%A%].hash (
 )
 SET /a A-=1
 
-:: output all paths and hashes
+:: output all paths and hashes to console
 FOR /L %%i IN (0 1 %A%) DO (
-   call echo path = %%obj[%%i].path%%
-   call echo hash = %%obj[%%i].hash%%
+   ECHO path = !obj[%%i].path!
+   ECHO hash = !obj[%%i].hash!
 )
 echo.
-FOR /L %%p IN (0 1 %A%) DO (
-	FOR /L %%q IN (1 1 %A%) DO (
-		IF %%obj[%%p].hash%%==%%obj[%%q].hash%% (
-			SET _match=!obj[%%p].hash!
-			ECHO Duplicate file SHA1: !_match!
-			GOTO :Output
-		) ELSE ( 
-			ECHO No Matches^^!
-			GOTO :EOF
-		)
+
+:: output hashes to txt
+IF NOT EXIST hashes.txt (
+	FOR /L %%p IN (0 1 %A%) DO (
+		ECHO !obj[%%p].hash! >> hashes.txt
 	)
 )
 
-:Output
-ECHO Paths:
-FOR /L %%r IN (0 1 %A%) DO (
-	IF !obj[%%r].hash!==!_match! (
-		ECHO !obj[%%r].path!
+SET prev=
+FOR /f "tokens=* delims=" %%a in ('sort hashes.txt') DO CALL :unique %%a
+
+:unique
+IF "%1"=="%prev%" (
+	ECHO Duplicate: %1
+	FOR /L %%r IN (0 1 %A%) DO (
+		IF "!obj[%%r].hash!"=="%1" ECHO !obj[%%r].path! 
 	)
 )
-ECHO.
+SET prev=%1
+GOTO :EOF
+
+:Trim
+SetLocal EnableDelayedExpansion
+set Params=%*
+for /f "tokens=1*" %%a in ("!Params!") do EndLocal & set %1=%%b
+exit /b
