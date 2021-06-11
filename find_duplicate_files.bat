@@ -1,17 +1,21 @@
+@if (@CodeSection == @Batch) @then
 @ECHO OFF
 SETLOCAL EnableDelayedExpansion
 ECHO.
-ECHO [36mSearching: "%cd%" for duplicate files ...[0m
 :: loop directory and set hash/path object
-CALL :ProgressMeter 0
+ECHO [36mSearching: "%cd%" for duplicate files.[0m
+CALL :ProgressMeter 10
 SET /A "_size=0"
-FOR /F "tokens=*" %%i IN ('where /R %cd% *.*') DO (
+FOR /F "tokens=*" %%i IN ('where /R "%cd%" *.*') DO (
+	CALL :drawProgressBar /
 	SET "obj[!_size!].path=%%i"
 	FOR /F "tokens=*" %%j IN ('certutil -hashfile "%%i" SHA1 ^| findstr /V ":"') DO (
 		SET "_hash=%%j"
+		CALL :drawProgressBar -
 	)
 	SET "obj[!_size!].hash=!_hash!"
 	SET /A "_size+=1"
+	CALL :drawProgressBar \
 )
 SET /A "_size-=1"
 REM ECHO.
@@ -29,7 +33,7 @@ CALL :ProgressMeter 40
 :: output all duplicate hashes to txt
 IF NOT EXIST duplicates.txt (
 	SET "prev="
-	FOR /F "tokens=* delims=" %%a IN ('sort hashes.txt') DO (
+	FOR /F "tokens=*" %%a IN ('sort "hashes.txt"') DO (
 		IF "%%a"=="!prev!" (
 			ECHO %%a >> duplicates.txt
 		)
@@ -57,10 +61,11 @@ IF NOT EXIST unq_duplicates.txt (
 (SET LF=^
 
 )
-
-ECHO %_count% duplicates found.
 ECHO.
-ECHO %_count% duplicates found.!LF! > %userprofile%\Desktop\%_count%_duplicates.txt
+ECHO.
+ECHO [31m%_count% duplicates found.[0m
+ECHO.
+ECHO %_count% duplicates found in "%cd%".!LF! > %userprofile%\Desktop\%_count%_duplicates.txt
 ECHO [33mThe SHA1 and file paths are in "%userprofile%\Desktop\%_count%_duplicates.txt".[0m
 
 CALL :ProgressMeter 80
@@ -90,12 +95,22 @@ SETLOCAL ENABLEDELAYEDEXPANSION
 SET ProgressPercent=%1
 SET /A NumBars=%ProgressPercent%/2
 SET /A NumSpaces=50-%NumBars%
-
 SET Meter=
-
 FOR /L %%A IN (%NumBars%,-1,1) DO SET Meter=!Meter!I
 FOR /L %%A IN (%NumSpaces%,-1,1) DO SET Meter=!Meter!
-
 TITLE Overall Progress:  [%Meter%]  %ProgressPercent%%%
 ENDLOCAL
 GOTO :EOF
+
+:pause <ms>
+cscript /nologo /e:JScript "%~f0" "%~1"
+GOTO :EOF
+
+:drawProgressBar
+for /f %%a in ('copy "%~f0" nul /z') do set "pb.cr=%%a"
+<nul set /p "=[33mPlease Wait [ %1 ] ... !pb.cr![0m"
+call :pause 0
+GOTO :EOF
+
+@end // end batch / begin JScript hybrid code
+WSH.Sleep(WSH.Arguments(0));

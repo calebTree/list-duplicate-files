@@ -1,2 +1,2 @@
 # find-duplicates
-a batch script that finds duplicate files using sha1 comparison in the current working directory and subdirectories
+A batch script that finds duplicate files in the current working directory and subdirectories using SHA1 comparison.
