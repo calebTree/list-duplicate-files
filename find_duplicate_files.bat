@@ -1,15 +1,14 @@
 @ECHO OFF
 SETLOCAL EnableDelayedExpansion
 ECHO.
-ECHO Searching: %cd%\ for duplicate files ...
-ECHO.
+ECHO [36mSearching: "%cd%" for duplicate files ...[0m
 :: loop directory and set hash/path object
 CALL :ProgressMeter 0
 SET /A "_size=0"
 FOR /F "tokens=*" %%i IN ('where /R %cd% *.*') DO (
 	SET "obj[!_size!].path=%%i"
-	FOR /F "tokens=*" %%G IN ('certutil -hashfile "%%i" SHA1 ^| findstr /V ":"') DO (
-		SET "_hash=%%G"
+	FOR /F "tokens=*" %%j IN ('certutil -hashfile "%%i" SHA1 ^| findstr /V ":"') DO (
+		SET "_hash=%%j"
 	)
 	SET "obj[!_size!].hash=!_hash!"
 	SET /A "_size+=1"
@@ -56,12 +55,13 @@ IF NOT EXIST unq_duplicates.txt (
 	DEL duplicates.txt
 )
 (SET LF=^
-%=this line is empty=%
+
 )
 
 ECHO %_count% duplicates found.
+ECHO.
 ECHO %_count% duplicates found.!LF! > %userprofile%\Desktop\%_count%_duplicates.txt
-ECHO The SHA1 and file paths are in "%userprofile%\Desktop\%_count%_duplicates.txt".
+ECHO [33mThe SHA1 and file paths are in "%userprofile%\Desktop\%_count%_duplicates.txt".[0m
 
 CALL :ProgressMeter 80
 :: output all paths and shas of duplicate files to console
