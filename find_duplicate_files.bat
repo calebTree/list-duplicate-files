@@ -28,6 +28,7 @@ FOR /F "tokens=*" %%i IN ('where /R "%cd%" *.*') DO (
 	SET /A "_size+=1"
 	CALL :drawProgressBar \ !_sizeA!
 	SET /A "_sizeA-=1"
+	CALL :drawProgressBar - !_sizeA!
 )
 SET /A "_size-=1"
 REM ECHO.
