@@ -1,7 +1,9 @@
 @if (@CodeSection == @Batch) @then
 @ECHO OFF
 SETLOCAL EnableDelayedExpansion
+
 ECHO [36mCounting files ...[0m
+ECHO [36mIn: "%cd%".[0m
 CALL :ProgressMeter 0
 SET /A "_fileCount=0"
 FOR /F "tokens=*" %%i IN ('where /R "%cd%" *.*') DO (
@@ -17,6 +19,11 @@ GOTO :EOF
 :: loop directory and set hash/path object
 ECHO.
 SET /A "_size=0"
+:: get simple path
+FOR %%I IN (.) DO SET "_currDirName=%%~nxI"
+SET "_drive=%~d0"
+SET "_dirString=%_drive%\...\%_currDirName%\"
+
 CALL :ProgressMeter 10
 FOR /F "tokens=*" %%i IN ('where /R "%cd%" *.*') DO (
 	CALL :drawProgressBar / !_fileCount!
@@ -89,6 +96,7 @@ IF EXIST unq_duplicates.txt (
 	DEL unq_duplicates.txt
 )
 
+:: ========== FUNCTIONS ==========
 :checkduplicate
 IF "%1" NEQ "" (
 	ECHO Duplicate file SHA1: %1
@@ -119,7 +127,7 @@ GOTO :EOF
 
 :drawProgressBar
 FOR /f %%a IN ('copy "%~f0" nul /z') DO SET "pb.cr=%%a"
-<nul set /p "=[32mComputing [ %2 ] SHA1 file hashes in: "%cd%". Please Wait [ %1 ] ...!pb.cr![0m"
+<nul set /p "=[32mComputing [ %2 ] SHA1 file hashes in: "%_dirString%". Please Wait [ %1 ] ...!pb.cr![0m"
 CALL :pause 0
 GOTO :EOF
 
