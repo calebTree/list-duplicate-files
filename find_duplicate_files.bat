@@ -1,8 +1,7 @@
 @if (@CodeSection == @Batch) @then
-chcp 65001 >NUL
 @ECHO OFF
+chcp 65001 >NUL
 SETLOCAL EnableDelayedExpansion
-
 ECHO [36mCounting files ...[0m
 ECHO [36mIn: "%cd%".[0m
 CALL :ProgressMeter 0
@@ -21,8 +20,8 @@ GOTO :EOF
 ECHO.
 SET /A "_size=0"
 :: get simple path
+for /f "tokens=1 delims=\" %%a in ("%cd%") do SET "_drive=%%a"
 FOR %%I IN (.) DO SET "_currDirName=%%~nxI"
-SET "_drive=%~d0"
 SET "_dirString=%_drive%\...\%_currDirName%\"
 :: hash time
 CALL :ProgressMeter 10
@@ -98,6 +97,7 @@ IF EXIST unq_duplicates.txt (
 )
 
 CALL :ProgressMeter 100
+more %userprofile%\Desktop\%_count%_duplicates.txt
 EXIT /B
 
 :: ========== FUNCTIONS ==========
