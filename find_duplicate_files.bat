@@ -1,4 +1,5 @@
 @if (@CodeSection == @Batch) @then
+chcp 65001 >NUL
 @ECHO OFF
 SETLOCAL EnableDelayedExpansion
 
@@ -23,16 +24,16 @@ SET /A "_size=0"
 FOR %%I IN (.) DO SET "_currDirName=%%~nxI"
 SET "_drive=%~d0"
 SET "_dirString=%_drive%\...\%_currDirName%\"
-
+:: hash time
 CALL :ProgressMeter 10
 FOR /F "tokens=*" %%i IN ('where /R "%cd%" *.*') DO (
 	CALL :drawProgressBar / !_fileCount!
 	SET "obj[!_size!].path=%%i"
 	FOR /F "tokens=*" %%j IN ('certutil -hashfile "%%i" SHA1 ^| findstr /V ":"') DO (
-		SET "_hash=%%j"
+		SET "obj[!_size!].hash=%%j"
 		CALL :drawProgressBar - !_fileCount!
 	)
-	SET "obj[!_size!].hash=!_hash!"
+	REM SET "obj[!_size!].hash=!_hash!"
 	SET /A "_size+=1"
 	CALL :drawProgressBar \ !_fileCount!
 	SET /A "_fileCount-=1"
@@ -63,7 +64,7 @@ IF NOT EXIST duplicates.txt (
 	)
 	DEL hashes.txt
 	IF NOT EXIST duplicates.txt (
-		ECHO No duplicates^^!
+		ECHO [31mNo duplicates^^![0m
 		GOTO :EOF
 	)
 )
@@ -96,6 +97,9 @@ IF EXIST unq_duplicates.txt (
 	DEL unq_duplicates.txt
 )
 
+CALL :ProgressMeter 100
+EXIT /B
+
 :: ========== FUNCTIONS ==========
 :checkduplicate
 IF "%1" NEQ "" (
@@ -108,9 +112,6 @@ IF "%1" NEQ "" (
 )
 GOTO :EOF
 
-CALL :ProgressMeter 100
-EXIT /B
-
 :ProgressMeter
 SET ProgressPercent=%1
 SET /A NumBars=%ProgressPercent%/2
@@ -121,8 +122,8 @@ FOR /L %%A IN (%NumSpaces%,-1,1) DO SET Meter=!Meter!
 TITLE Overall Progress:  [%Meter%]  %ProgressPercent%%%
 GOTO :EOF
 
-:pause <ms>
-cscript /nologo /e:JScript "%~f0" "%~1"
+:pause
+wscript /nologo /e:JScript "%~f0" "%~1"
 GOTO :EOF
 
 :drawProgressBar
@@ -132,4 +133,4 @@ CALL :pause 0
 GOTO :EOF
 
 @end // end batch / begin JScript hybrid code
-WSH.Sleep(WSH.Arguments(0));
+WScript.Sleep(WScript.Arguments(0));
