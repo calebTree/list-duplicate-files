@@ -25,7 +25,7 @@ FOR %%I IN (.) DO SET "_currDirName=%%~nxI"
 SET "_dirString=%_drive%\...\%_currDirName%\"
 :: hash time
 CALL :ProgressMeter 10
-FOR /F "tokens=*" %%i IN ('where /R "%cd%" *.*') DO (
+FOR /F "tokens=*" %%i IN ('dir /s /b /a-d') DO (
 	CALL :drawProgressBar / !_fileCount!
 	SET "obj[!_size!].path=%%i"
 	REM Skip empty file
