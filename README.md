@@ -1,8 +1,10 @@
 # find-duplicates.bat
-A batch script that finds duplicate files using SHA1 comparison in the current working directory and subdirectories.
+## Reports duplicate files in a working directory and subdirectories using SHA1 comparison.
 
-Caution use in root directory will simply take a long time to hash all files.
-## Example output (on desktop):
+### Example output to desktop named \"n_duplicates.txt\" (where n is the number of duplicates found):  
+
+Does provide actual fully qualified path i.e. rather than [C:\\...] for example.  
+
 > 4 duplicates found in "[C:\\...]\test_dir".
 > 
 > Duplicate file SHA1: 1ce7f9817298fd474e77ef41ad28472a8455056a  
@@ -25,4 +27,3 @@ Paths:
 [C:\\...]\test_dir\data - Copy.txt  
 [C:\\...]\test_dir\data.txt  
 
-Does provide actual fully qualified path i.e. rather than [C:\\...].
