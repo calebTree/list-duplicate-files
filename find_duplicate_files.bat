@@ -101,7 +101,7 @@ IF EXIST unq_duplicates.txt (
 CALL :ProgressMeter 100
 ECHO.
 FOR /f %%a IN ('copy "%~f0" nul /z') DO SET "pb.cr=%%a"
-ECHO [36mPress any key to more "%userprofile%\Desktop\%_count%_duplicates.txt" . . .[0m & PAUSE >NUL
+ECHO [36mNow that you know where to find the output file. Press any key to more that file in the console now . . .[0m & PAUSE >NUL
 ECHO.
 more %userprofile%\Desktop\%_count%_duplicates.txt
 EXIT /B
