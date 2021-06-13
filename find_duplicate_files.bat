@@ -6,7 +6,7 @@ ECHO [36mCounting files ...[0m
 ECHO [36mIn: "%cd%".[0m
 CALL :ProgressMeter 0
 SET /A "_fileCount=0"
-FOR /F "tokens=*" %%i IN ('where /R "%cd%" *.*') DO (
+FOR /F "tokens=*" %%i IN ('dir /s /b /a-d') DO (
 	SET /A "_fileCount+=1"
 )
 ECHO                                    [41m---WARNING---[0m
@@ -28,11 +28,13 @@ CALL :ProgressMeter 10
 FOR /F "tokens=*" %%i IN ('where /R "%cd%" *.*') DO (
 	CALL :drawProgressBar / !_fileCount!
 	SET "obj[!_size!].path=%%i"
-	FOR /F "tokens=*" %%j IN ('certutil -hashfile "%%i" SHA1 ^| findstr /V ":"') DO (
-		SET "obj[!_size!].hash=%%j"
-		CALL :drawProgressBar - !_fileCount!
-	)
-	REM SET "obj[!_size!].hash=!_hash!"
+	REM Skip empty file
+	IF %%~zi GTR 0 (
+		FOR /F "tokens=*" %%j IN ('certutil -hashfile "%%i" SHA1 ^| findstr /V ":"') DO (
+			SET "obj[!_size!].hash=%%j"
+			CALL :drawProgressBar - !_fileCount!			
+		)
+	) ELSE SET "obj[!_size!].hash=HASH_ERROR_FILE_INVALID-SIZE:%%~zi"
 	SET /A "_size+=1"
 	CALL :drawProgressBar \ !_fileCount!
 	SET /A "_fileCount-=1"
@@ -46,8 +48,8 @@ ECHO [36mSearching for duplicates ...[0m
 CALL :ProgressMeter 20
 :: output all hashes to txt
 IF NOT EXIST hashes.txt (
-	FOR /L %%p IN (0 1 %_size%) DO (
-		ECHO !obj[%%p].hash! >> hashes.txt
+	FOR /F "tokens=2* delims=.=" %%a IN ('SET obj ^| FINDSTR /C:"hash"') DO (
+		ECHO %%b >> hashes.txt
 	)
 )
 
@@ -97,6 +99,10 @@ IF EXIST unq_duplicates.txt (
 )
 
 CALL :ProgressMeter 100
+ECHO.
+FOR /f %%a IN ('copy "%~f0" nul /z') DO SET "pb.cr=%%a"
+ECHO [36mPress any key to more "%userprofile%\Desktop\%_count%_duplicates.txt" . . .[0m & PAUSE >NUL
+ECHO.
 more %userprofile%\Desktop\%_count%_duplicates.txt
 EXIT /B
 
