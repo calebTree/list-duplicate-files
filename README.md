@@ -1,4 +1,4 @@
-# find-duplicates.bat
+# find-duplicates
 ## Reports duplicate files in a working directory and subdirectories using SHA1 comparison.
 
 ### Example output to desktop named \"n_duplicates.txt\" (where n is the number of duplicates found):  
