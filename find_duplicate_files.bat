@@ -31,10 +31,10 @@ FOR /F "tokens=*" %%i IN ('dir /s /b /a-d') DO (
 	REM Skip empty file
 	IF %%~zi GTR 0 (
 		FOR /F "tokens=*" %%j IN ('certutil -hashfile "%%i" SHA1 ^| findstr /V ":"') DO (
-			SET "obj[!_size!].hash=%%j"
+			SET "obj[!_size!].hash=%%j:%%~zi"
 			CALL :drawProgressBar - !_fileCount!			
 		)
-	) ELSE SET "obj[!_size!].hash=HASH_ERROR_FILE_INVALID-SIZE:%%~zi"
+	) ELSE SET "obj[!_size!].hash=HASH_ERROR-FILE_INVALID_SIZE:%%~zi"
 	SET /A "_size+=1"
 	CALL :drawProgressBar \ !_fileCount!
 	SET /A "_fileCount-=1"
@@ -94,7 +94,6 @@ CALL :ProgressMeter 80
 IF EXIST unq_duplicates.txt (
 	FOR /F "tokens=*" %%a IN (unq_duplicates.txt) DO (
 		CALL :checkduplicate %%a >> %userprofile%\Desktop\%_count%_duplicates.txt
-		CALL :getfilesize %%a >> %userprofile%\Desktop\%_count%_duplicates.txt
 	)
 	DEL unq_duplicates.txt
 )
@@ -110,23 +109,12 @@ EXIT /B
 :: ========== FUNCTIONS ==========
 :checkduplicate
 IF "%1" NEQ "" (
-	ECHO Duplicate file SHA1: %1
+	FOR /F "tokens=1 delims=:" %%i IN ("%1") DO ECHO SHA1: %%i
+	FOR /F "tokens=2 delims=:" %%i IN ("%1") DO ECHO Size: %%i bytes.
 	ECHO Paths:
 	FOR /L %%r IN (0 1 %_size%) DO (
 		IF "!obj[%%r].hash!"=="%1" ECHO !obj[%%r].path!
 	)
-	REM ECHO.
-)
-GOTO :EOF
-
-:getfilesize
-IF "%1" NEQ "" (
-	FOR /L %%r IN (0 1 %_size%) DO (
-		IF "!obj[%%r].hash!"=="%1" (
-			FOR /F "tokens=3" %%a IN ('DIR "!obj[%%r].path!" ^| findstr /C:"1 F"') DO SET _bytes=%%a
-		)
-	)
-	ECHO Size: !_bytes! bytes.
 	ECHO.
 )
 GOTO :EOF
