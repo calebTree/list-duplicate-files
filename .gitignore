@@ -1,2 +1,5 @@
 test_dir
 research
+.*
+*~
+url_dir
