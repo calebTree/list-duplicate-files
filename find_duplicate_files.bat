@@ -73,7 +73,7 @@ IF NOT EXIST duplicates.txt (
 CALL :ProgressMeter 60
 :: output only unique hashes to txt
 IF NOT EXIST unq_duplicates.txt (
-	FOR /F "tokens=* delims=" %%a IN ('sort duplicates.txt') DO (
+	FOR /F %%a IN ('sort duplicates.txt') DO (
 		IF NOT "%%a"=="!prev!" (
 			ECHO %%a >> unq_duplicates.txt
 			SET /A "_count+=1"
@@ -94,6 +94,7 @@ CALL :ProgressMeter 80
 IF EXIST unq_duplicates.txt (
 	FOR /F "tokens=*" %%a IN (unq_duplicates.txt) DO (
 		CALL :checkduplicate %%a >> %userprofile%\Desktop\%_count%_duplicates.txt
+		CALL :getfilesize %%a >> %userprofile%\Desktop\%_count%_duplicates.txt
 	)
 	DEL unq_duplicates.txt
 )
@@ -114,6 +115,18 @@ IF "%1" NEQ "" (
 	FOR /L %%r IN (0 1 %_size%) DO (
 		IF "!obj[%%r].hash!"=="%1" ECHO !obj[%%r].path!
 	)
+	REM ECHO.
+)
+GOTO :EOF
+
+:getfilesize
+IF "%1" NEQ "" (
+	FOR /L %%r IN (0 1 %_size%) DO (
+		IF "!obj[%%r].hash!"=="%1" (
+			FOR /F "tokens=3" %%a IN ('DIR "!obj[%%r].path!" ^| findstr /C:"1 F"') DO SET _bytes=%%a
+		)
+	)
+	ECHO Size: !_bytes! bytes.
 	ECHO.
 )
 GOTO :EOF
