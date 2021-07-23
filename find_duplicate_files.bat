@@ -9,9 +9,8 @@ SET /A "_fileCount=0"
 FOR /F "tokens=*" %%i IN ('dir /s /b /a-d') DO (
 	SET /A "_fileCount+=1"
 )
-ECHO                                    [41m---WARNING---[0m
-ECHO [36mReady to SHA1 hash [47m[30m %_fileCount% [0m[36m files? (y/n)[0m
-SET /P "_input=[36mEnter Yes or No:[0m "
+ECHO					[41m---WARNING---[0m
+SET /P "_input=[36mReady to SHA1 hash [47m[30m %_fileCount% [0m[36m files? Enter (y/n):[0m "
 IF /I "%_input%"=="y" GOTO :yes
 GOTO :EOF
 
@@ -86,8 +85,10 @@ IF NOT EXIST unq_duplicates.txt (
 
 )
 ECHO [31m%_count% duplicates found.[0m
+ECHO.
+
+ECHO [33mSaving output to: "%userprofile%\Desktop\%_count%_duplicates.txt" . . .[0m
 ECHO %_count% duplicates found in "%cd%".!LF! > %userprofile%\Desktop\%_count%_duplicates.txt
-ECHO [33mThe SHA1 and file paths are in "%userprofile%\Desktop\%_count%_duplicates.txt".[0m
 
 CALL :ProgressMeter 80
 :: output all paths and shas of duplicate files to console
@@ -99,9 +100,8 @@ IF EXIST unq_duplicates.txt (
 )
 
 CALL :ProgressMeter 100
-ECHO.
 FOR /f %%a IN ('copy "%~f0" nul /z') DO SET "pb.cr=%%a"
-ECHO [36mNow that you know where to find the output file. Press any key to more that file in the console now . . .[0m & PAUSE >NUL
+ECHO [36mPress any key to view the above file in the console now . . .[0m & PAUSE >NUL
 ECHO.
 more %userprofile%\Desktop\%_count%_duplicates.txt
 EXIT /B
